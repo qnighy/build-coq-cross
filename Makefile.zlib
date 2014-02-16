@@ -1,34 +1,44 @@
 #!/usr/bin/make -f
 
-include Makefile.common
-
 ZLIB_VERSION := 1.2.8
 
-.PHONY: zlib-src zlib-configure zlib zlib-install
+ZLIB_SRC := src/zlib-$(ZLIB_VERSION).tar.xz
+ZLIB_CONFIGURE_STAMP := build/zlib-$(ZLIB_VERSION)/.stamp
+ZLIB_BUILD_STAMP := build/zlib-$(ZLIB_VERSION)/minigzip_d$(EXE)
+ZLIB_INSTALL_STAMP := stamps/zlib.stamp
 
-zlib-src: src/zlib-$(ZLIB_VERSION).tar.xz
-src/zlib-$(ZLIB_VERSION).tar.xz: src
+.PHONY: zlib-src zlib-configure zlib zlib-install zlib-force-install
+
+zlib-src: $(ZLIB_SRC)
+$(ZLIB_SRC):
+	mkdir -p src
 	cd src && \
 	  wget -nc http://zlib.net/zlib-$(ZLIB_VERSION).tar.xz
 
-zlib-configure: build/zlib-$(ZLIB_VERSION)
-build/zlib-$(ZLIB_VERSION): build zlib-src
+zlib-configure: $(ZLIB_CONFIGURE_STAMP)
+$(ZLIB_CONFIGURE_STAMP): $(ZLIB_SRC)
+	mkdir -p build
 	cd build && \
 	  tar xvf ../src/zlib-$(ZLIB_VERSION).tar.xz
+	touch $@
 
-zlib: build/zlib-$(ZLIB_VERSION)/minigzip-d.exe
-build/zlib-$(ZLIB_VERSION)/minigzip-d.exe: zlib-configure
+zlib: $(ZLIB_BUILD_STAMP)
+$(ZLIB_BUILD_STAMP): $(ZLIB_CONFIGURE_STAMP)
 	cd build/zlib-$(ZLIB_VERSION) && \
 	  $(MAKE) all \
 	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc
 
-zlib-install: stamps/zlib.stamp
-stamps/zlib.stamp: stamps zlib
+zlib-install: $(ZLIB_INSTALL_STAMP)
+$(ZLIB_INSTALL_STAMP):
+	$(MAKE) zlib-force-install
+	touch $@
+
+zlib-force-install: $(ZLIB_BUILD_STAMP)
+	mkdir -p stamps
 	cd build/zlib-$(ZLIB_VERSION) && \
 	  $(SUDO) $(MAKE) install \
 	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc \
-	    INCLUDE_PATH=$(PREFIX)/include \
-	    LIBRARY_PATH=$(PREFIX)/lib \
-	    BINARY_PATH=$(PREFIX)/bin \
+	    INCLUDE_PATH="$(PREFIX)/include" \
+	    LIBRARY_PATH="$(PREFIX)/lib" \
+	    BINARY_PATH="$(PREFIX)/bin" \
 	    SHARED_MODE=1
-	touch $@
