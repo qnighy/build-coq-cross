@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+LIBJPEG_VERSION := 9a
+
+LIBJPEG_SRC := src/jpegsrc.v$(LIBJPEG_VERSION).tar.gz
+LIBJPEG_CONFIGURE_STAMP := build/jpeg-$(LIBJPEG_VERSION)/Makefile
+LIBJPEG_BUILD_STAMP := build/jpeg-$(LIBJPEG_VERSION)/wrjpgcom$(EXE)
+LIBJPEG_INSTALL_STAMP := stamps/libjpeg.stamp
+
+.PHONY: libjpeg-src libjpeg-configure libjpeg libjpeg-install libjpeg-force-install
+
+libjpeg-src: $(LIBJPEG_SRC)
+$(LIBJPEG_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc  http://www.ijg.org/files/jpegsrc.v${LIBJPEG_VERSION}.tar.gz
+
+libjpeg-configure: $(LIBJPEG_CONFIGURE_STAMP)
+$(LIBJPEG_CONFIGURE_STAMP): $(LIBJPEG_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LIBJPEG_SRC)
+	cd build/jpeg-$(LIBJPEG_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+
+libjpeg: $(LIBJPEG_BUILD_STAMP)
+$(LIBJPEG_BUILD_STAMP): $(LIBJPEG_CONFIGURE_STAMP)
+	cd build/jpeg-$(LIBJPEG_VERSION) && \
+	  $(MAKE) all
+
+libjpeg-install: $(LIBJPEG_INSTALL_STAMP)
+$(LIBJPEG_INSTALL_STAMP):
+	$(MAKE) libjpeg-force-install
+	touch $@
+
+libjpeg-force-install: $(LIBJPEG_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/jpeg-$(LIBJPEG_VERSION) && \
+	  $(SUDO) $(MAKE) install
