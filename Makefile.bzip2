@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+BZIP2_VERSION := 1.0.6
+
+BZIP2_SRC := src/bzip2-$(BZIP2_VERSION).tar.gz
+BZIP2_CONFIGURE_STAMP := build/bzip2-$(BZIP2_VERSION)/.configure_stamp
+BZIP2_BUILD_STAMP := build/bzip2-$(BZIP2_VERSION)/.build_stamp
+BZIP2_INSTALL_STAMP := stamps/bzip2.stamp
+
+.PHONY: bzip2-src bzip2-configure bzip2 bzip2-install bzip2-force-install
+
+bzip2-src: $(BZIP2_SRC)
+$(BZIP2_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://www.bzip.org/$(BZIP2_VERSION)/bzip2-$(BZIP2_VERSION).tar.gz
+
+bzip2-configure: $(BZIP2_CONFIGURE_STAMP)
+$(BZIP2_CONFIGURE_STAMP): $(BZIP2_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(BZIP2_SRC)
+	cd build/bzip2-$(BZIP2_VERSION) && \
+	  patch -p1 < ../../patches/bzip2-cross.patch
+	touch $@
+
+bzip2: $(BZIP2_BUILD_STAMP)
+$(BZIP2_BUILD_STAMP): $(BZIP2_CONFIGURE_STAMP)
+	cd build/bzip2-$(BZIP2_VERSION) && \
+	  $(MAKE) all \
+	    CPPFLAGS="-I$(PREFIX)/include" \
+	    LDFLAGS="-L$(PREFIX)/lib" \
+	    ARCH=$(ARCH) \
+	    PREFIX=$(PREFIX)
+	touch $@
+
+bzip2-install: $(BZIP2_INSTALL_STAMP)
+$(BZIP2_INSTALL_STAMP):
+	$(MAKE) bzip2-force-install
+	touch $@
+
+bzip2-force-install: $(BZIP2_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/bzip2-$(BZIP2_VERSION) && \
+	  $(SUDO) $(MAKE) install \
+	    CPPFLAGS="-I$(PREFIX)/include" \
+	    LDFLAGS="-L$(PREFIX)/lib" \
+	    ARCH=$(ARCH) \
+	    PREFIX=$(PREFIX)
