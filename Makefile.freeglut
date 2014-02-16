@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+
+FREEGLUT_VERSION := 2.8.1
+
+FREEGLUT_SRC := src/freeglut-$(FREEGLUT_VERSION).tar.gz
+FREEGLUT_CONFIGURE_STAMP := build/freeglut-$(FREEGLUT_VERSION)/.configure_stamp
+FREEGLUT_BUILD_STAMP := build/freeglut-$(FREEGLUT_VERSION)/.build_stamp
+FREEGLUT_INSTALL_STAMP := stamps/freeglut.stamp
+
+.PHONY: freeglut-src freeglut-configure freeglut freeglut-install freeglut-force-install
+
+freeglut-src: $(FREEGLUT_SRC)
+$(FREEGLUT_SRC):
+	mkdir -p src
+	echo "please download src/$(FREEGLUT_SRC) !" >&2
+	false
+
+freeglut-configure: $(FREEGLUT_CONFIGURE_STAMP)
+$(FREEGLUT_CONFIGURE_STAMP): $(FREEGLUT_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(FREEGLUT_SRC)
+	cd build/freeglut-$(FREEGLUT_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+freeglut: $(FREEGLUT_BUILD_STAMP)
+$(FREEGLUT_BUILD_STAMP): $(FREEGLUT_CONFIGURE_STAMP)
+	cd build/freeglut-$(FREEGLUT_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+freeglut-install: $(FREEGLUT_INSTALL_STAMP)
+$(FREEGLUT_INSTALL_STAMP):
+	$(MAKE) freeglut-force-install
+	touch $@
+
+freeglut-force-install: $(FREEGLUT_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/freeglut-$(FREEGLUT_VERSION) && \
+	  $(SUDO) $(MAKE) install
