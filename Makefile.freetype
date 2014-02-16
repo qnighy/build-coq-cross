@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+FREETYPE_VERSION := 2.5.2
+
+FREETYPE_SRC := src/freetype-$(FREETYPE_VERSION).tar.bz2
+FREETYPE_CONFIGURE_STAMP := build/freetype-$(FREETYPE_VERSION)/.configure_stamp
+FREETYPE_BUILD_STAMP := build/freetype-$(FREETYPE_VERSION)/.build_stamp
+FREETYPE_INSTALL_STAMP := stamps/freetype.stamp
+
+.PHONY: freetype-src freetype-configure freetype freetype-install freetype-force-install
+
+freetype-src: $(FREETYPE_SRC)
+$(FREETYPE_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://download.savannah.gnu.org/releases/freetype/freetype-$(FREETYPE_VERSION).tar.bz2
+
+freetype-configure: $(FREETYPE_CONFIGURE_STAMP)
+$(FREETYPE_CONFIGURE_STAMP): $(FREETYPE_SRC) zlib-install bzip2-install libpng-install freeglut-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(FREETYPE_SRC)
+	cd build/freetype-$(FREETYPE_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)" \
+		    LIBPNG="$(shell $(PREFIX)/bin/libpng-config --libs)" \
+		    LIBPNG_CFLAGS="$(shell $(PREFIX)/bin/libpng-config --cflags)" \
+		    LIBPNG_LDFLAGS="$(shell $(PREFIX)/bin/libpng-config --ldflags)"
+	touch $@
+
+freetype: $(FREETYPE_BUILD_STAMP)
+$(FREETYPE_BUILD_STAMP): $(FREETYPE_CONFIGURE_STAMP)
+	cd build/freetype-$(FREETYPE_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+freetype-install: $(FREETYPE_INSTALL_STAMP)
+$(FREETYPE_INSTALL_STAMP):
+	$(MAKE) freetype-force-install
+	touch $@
+
+freetype-force-install: $(FREETYPE_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/freetype-$(FREETYPE_VERSION) && \
+	  $(SUDO) $(MAKE) install

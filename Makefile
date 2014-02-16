@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: bzip2-install
+DEFAULT_TARGET: freetype-install
 
 include config.mk
 include Makefile.zlib
@@ -10,3 +10,4 @@ include Makefile.libjpeg
 include Makefile.freeglut
 include Makefile.libtiff
 include Makefile.bzip2
+include Makefile.freetype
