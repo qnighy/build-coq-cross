@@ -16,7 +16,7 @@ $(LIBTIFF_SRC):
 	  wget -nc http://download.osgeo.org/libtiff/tiff-$(LIBTIFF_VERSION).tar.gz
 
 libtiff-configure: $(LIBTIFF_CONFIGURE_STAMP)
-$(LIBTIFF_CONFIGURE_STAMP): $(LIBTIFF_SRC) zlib-install libjpeg-install freeglut-install
+$(LIBTIFF_CONFIGURE_STAMP): $(LIBTIFF_SRC) $(ZLIB_INSTALL_STAMP) $(LIBJPEG_INSTALL_STAMP) $(FREEGLUT_INSTALL_STAMP)
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(LIBTIFF_SRC)
