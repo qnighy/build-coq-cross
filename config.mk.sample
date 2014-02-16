@@ -1,0 +1,5 @@
+#!/usr/bin/make -f
+
+ARCH := i686-w64-mingw32
+SUDO := sudo
+PREFIX := /usr/local/$(ARCH)

@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+
+include Makefile.common
+
+ZLIB_VERSION := 1.2.8
+
+.PHONY: zlib-src zlib-configure zlib zlib-install
+
+zlib-src: src/zlib-$(ZLIB_VERSION).tar.xz
+src/zlib-$(ZLIB_VERSION).tar.xz: src
+	cd src && \
+	  wget -nc http://zlib.net/zlib-$(ZLIB_VERSION).tar.xz
+
+zlib-configure: build/zlib-$(ZLIB_VERSION)
+build/zlib-$(ZLIB_VERSION): build zlib-src
+	cd build && \
+	  tar xvf ../src/zlib-$(ZLIB_VERSION).tar.xz
+
+zlib: build/zlib-$(ZLIB_VERSION)/minigzip-d.exe
+build/zlib-$(ZLIB_VERSION)/minigzip-d.exe: zlib-configure
+	cd build/zlib-$(ZLIB_VERSION) && \
+	  $(MAKE) all \
+	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc
+
+zlib-install: stamps/zlib.stamp
+stamps/zlib.stamp: stamps zlib
+	cd build/zlib-$(ZLIB_VERSION) && \
+	  $(SUDO) $(MAKE) install \
+	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc \
+	    INCLUDE_PATH=$(PREFIX)/include \
+	    LIBRARY_PATH=$(PREFIX)/lib \
+	    BINARY_PATH=$(PREFIX)/bin \
+	    SHARED_MODE=1
+	touch $@

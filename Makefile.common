@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+.PHONY: prepare
+
+prepare: src stamps $(PREFIX)
+src build stamps:
+	mkdir -p $@
+$(PREFIX):
+	$(SUDO) mkdir -p $(PREFIX)
+
+include config.mk
