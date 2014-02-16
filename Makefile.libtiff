@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+
+LIBTIFF_VERSION := 4.0.3
+
+LIBTIFF_SRC := src/tiff-$(LIBTIFF_VERSION).tar.gz
+LIBTIFF_CONFIGURE_STAMP := build/tiff-$(LIBTIFF_VERSION)/.configure_stamp
+LIBTIFF_BUILD_STAMP := build/tiff-$(LIBTIFF_VERSION)/.build_stamp
+LIBTIFF_INSTALL_STAMP := stamps/tiff.stamp
+
+.PHONY: libtiff-src libtiff-configure libtiff libtiff-install libtiff-force-install
+
+libtiff-src: $(LIBTIFF_SRC)
+$(LIBTIFF_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://download.osgeo.org/libtiff/tiff-$(LIBTIFF_VERSION).tar.gz
+
+libtiff-configure: $(LIBTIFF_CONFIGURE_STAMP)
+$(LIBTIFF_CONFIGURE_STAMP): $(LIBTIFF_SRC) zlib-install libjpeg-install freeglut-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LIBTIFF_SRC)
+	cd build/tiff-$(LIBTIFF_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+libtiff: $(LIBTIFF_BUILD_STAMP)
+$(LIBTIFF_BUILD_STAMP): $(LIBTIFF_CONFIGURE_STAMP)
+	cd build/tiff-$(LIBTIFF_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+libtiff-install: $(LIBTIFF_INSTALL_STAMP)
+$(LIBTIFF_INSTALL_STAMP):
+	$(MAKE) libtiff-force-install
+	touch $@
+
+libtiff-force-install: $(LIBTIFF_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/tiff-$(LIBTIFF_VERSION) && \
+	  $(SUDO) $(MAKE) install
