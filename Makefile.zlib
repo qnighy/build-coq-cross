@@ -19,7 +19,7 @@ zlib-configure: $(ZLIB_CONFIGURE_STAMP)
 $(ZLIB_CONFIGURE_STAMP): $(ZLIB_SRC)
 	mkdir -p build
 	cd build && \
-	  tar xvf ../src/zlib-$(ZLIB_VERSION).tar.xz
+	  tar xvf ../$(ZLIB_SRC)
 	touch $@
 
 zlib: $(ZLIB_BUILD_STAMP)

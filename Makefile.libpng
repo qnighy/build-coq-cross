@@ -19,7 +19,7 @@ libpng-configure: $(LIBPNG_CONFIGURE_STAMP)
 $(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC) zlib-install
 	mkdir -p build
 	cd build && \
-	  tar xvf ../src/libpng-$(LIBPNG_VERSION).tar.xz
+	  tar xvf ../$(LIBPNG_SRC)
 	cd build/libpng-$(LIBPNG_VERSION) && \
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
