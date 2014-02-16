@@ -3,8 +3,8 @@
 LIBPNG_VERSION := 1.6.9
 
 LIBPNG_SRC := src/libpng-$(LIBPNG_VERSION).tar.xz
-LIBPNG_CONFIGURE_STAMP := build/libpng-$(LIBPNG_VERSION)/Makefile
-LIBPNG_BUILD_STAMP := build/libpng-$(LIBPNG_VERSION)/pngvalid$(EXE)
+LIBPNG_CONFIGURE_STAMP := build/libpng-$(LIBPNG_VERSION)/.configure_stamp
+LIBPNG_BUILD_STAMP := build/libpng-$(LIBPNG_VERSION)/.build_stamp
 LIBPNG_INSTALL_STAMP := stamps/libpng.stamp
 
 .PHONY: libpng-src libpng-configure libpng libpng-install libpng-force-install
@@ -24,11 +24,13 @@ $(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC) zlib-install
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
 
 libpng: $(LIBPNG_BUILD_STAMP)
 $(LIBPNG_BUILD_STAMP): $(LIBPNG_CONFIGURE_STAMP)
 	cd build/libpng-$(LIBPNG_VERSION) && \
 	  $(MAKE) all
+	touch $@
 
 libpng-install: $(LIBPNG_INSTALL_STAMP)
 $(LIBPNG_INSTALL_STAMP):

@@ -3,8 +3,8 @@
 ZLIB_VERSION := 1.2.8
 
 ZLIB_SRC := src/zlib-$(ZLIB_VERSION).tar.xz
-ZLIB_CONFIGURE_STAMP := build/zlib-$(ZLIB_VERSION)/.stamp
-ZLIB_BUILD_STAMP := build/zlib-$(ZLIB_VERSION)/minigzip_d$(EXE)
+ZLIB_CONFIGURE_STAMP := build/zlib-$(ZLIB_VERSION)/.configure_stamp
+ZLIB_BUILD_STAMP := build/zlib-$(ZLIB_VERSION)/.build_stamp
 ZLIB_INSTALL_STAMP := stamps/zlib.stamp
 
 .PHONY: zlib-src zlib-configure zlib zlib-install zlib-force-install
@@ -27,6 +27,7 @@ $(ZLIB_BUILD_STAMP): $(ZLIB_CONFIGURE_STAMP)
 	cd build/zlib-$(ZLIB_VERSION) && \
 	  $(MAKE) all \
 	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc
+	touch $@
 
 zlib-install: $(ZLIB_INSTALL_STAMP)
 $(ZLIB_INSTALL_STAMP):

@@ -3,8 +3,8 @@
 LIBJPEG_VERSION := 9a
 
 LIBJPEG_SRC := src/jpegsrc.v$(LIBJPEG_VERSION).tar.gz
-LIBJPEG_CONFIGURE_STAMP := build/jpeg-$(LIBJPEG_VERSION)/Makefile
-LIBJPEG_BUILD_STAMP := build/jpeg-$(LIBJPEG_VERSION)/wrjpgcom$(EXE)
+LIBJPEG_CONFIGURE_STAMP := build/jpeg-$(LIBJPEG_VERSION)/.configure_stamp
+LIBJPEG_BUILD_STAMP := build/jpeg-$(LIBJPEG_VERSION)/.build_stamp
 LIBJPEG_INSTALL_STAMP := stamps/libjpeg.stamp
 
 .PHONY: libjpeg-src libjpeg-configure libjpeg libjpeg-install libjpeg-force-install
@@ -24,11 +24,13 @@ $(LIBJPEG_CONFIGURE_STAMP): $(LIBJPEG_SRC)
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
 
 libjpeg: $(LIBJPEG_BUILD_STAMP)
 $(LIBJPEG_BUILD_STAMP): $(LIBJPEG_CONFIGURE_STAMP)
 	cd build/jpeg-$(LIBJPEG_VERSION) && \
 	  $(MAKE) all
+	touch $@
 
 libjpeg-install: $(LIBJPEG_INSTALL_STAMP)
 $(LIBJPEG_INSTALL_STAMP):
