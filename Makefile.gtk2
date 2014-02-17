@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+GTK2_VERSION := 2.24.22
+
+GTK2_SRC := src/gtk+-$(GTK2_VERSION).tar.xz
+GTK2_CONFIGURE_STAMP := build/gtk+-$(GTK2_VERSION)/.configure_stamp
+GTK2_BUILD_STAMP := build/gtk+-$(GTK2_VERSION)/.build_stamp
+GTK2_INSTALL_STAMP := stamps/gtk2.stamp
+
+.PHONY: gtk2-src gtk2-configure gtk2 gtk2-install gtk2-force-install
+
+gtk2-src: $(GTK2_SRC)
+$(GTK2_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/gtk+/$(shell echo $(GTK2_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/gtk+-$(GTK2_VERSION).tar.xz
+
+gtk2-configure: $(GTK2_CONFIGURE_STAMP)
+$(GTK2_CONFIGURE_STAMP): $(GTK2_SRC)
+	$(MAKE) cairo-install
+	$(MAKE) glib-install
+	$(MAKE) pango-install
+	$(MAKE) gdk-pixbuf-install
+	$(MAKE) atk-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(GTK2_SRC)
+	cd build/gtk+-$(GTK2_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+gtk2: $(GTK2_BUILD_STAMP)
+$(GTK2_BUILD_STAMP): $(GTK2_CONFIGURE_STAMP)
+	cd build/gtk+-$(GTK2_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+gtk2-install: $(GTK2_INSTALL_STAMP)
+$(GTK2_INSTALL_STAMP):
+	$(MAKE) gtk2-force-install
+	touch $@
+
+gtk2-force-install: $(GTK2_BUILD_STAMP)
+	$(MAKE) cairo-install
+	$(MAKE) glib-install
+	$(MAKE) pango-install
+	$(MAKE) gdk-pixbuf-install
+	$(MAKE) atk-install
+	mkdir -p stamps
+	cd build/gtk+-$(GTK2_VERSION) && \
+	  $(SUDO) $(MAKE) install

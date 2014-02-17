@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: atk-install
+DEFAULT_TARGET: gtk2-install
 
 include config.mk
 include Makefile.zlib
@@ -20,3 +20,4 @@ include Makefile.glib
 include Makefile.pango
 include Makefile.gdk-pixbuf
 include Makefile.atk
+include Makefile.gtk2
