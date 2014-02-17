@@ -13,7 +13,7 @@ libpng-src: $(LIBPNG_SRC)
 $(LIBPNG_SRC):
 	mkdir -p src
 	cd src && \
-	  wget -nc ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng$(shell echo $(LIBPNG_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1\2/')/libpng-${LIBPNG_VERSION}.tar.xz
+	  wget -nc ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng$(shell echo $(LIBPNG_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1\2/')/libpng-$(LIBPNG_VERSION).tar.xz
 
 libpng-configure: $(LIBPNG_CONFIGURE_STAMP)
 $(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC) $(ZLIB_INSTALL_STAMP)

@@ -13,7 +13,7 @@ gettext-src: $(GETTEXT_SRC)
 $(GETTEXT_SRC):
 	mkdir -p src
 	cd src && \
-	  wget -nc http://ftp.gnu.org/pub/gnu/gettext/gettext-${GETTEXT_VERSION}.tar.gz
+	  wget -nc http://ftp.gnu.org/pub/gnu/gettext/gettext-$(GETTEXT_VERSION).tar.gz
 
 gettext-configure: $(GETTEXT_CONFIGURE_STAMP)
 $(GETTEXT_CONFIGURE_STAMP): $(GETTEXT_SRC) $(LIBICONV_INSTALL_STAMP)

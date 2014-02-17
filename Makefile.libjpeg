@@ -13,7 +13,7 @@ libjpeg-src: $(LIBJPEG_SRC)
 $(LIBJPEG_SRC):
 	mkdir -p src
 	cd src && \
-	  wget -nc  http://www.ijg.org/files/jpegsrc.v${LIBJPEG_VERSION}.tar.gz
+	  wget -nc  http://www.ijg.org/files/jpegsrc.v$(LIBJPEG_VERSION).tar.gz
 
 libjpeg-configure: $(LIBJPEG_CONFIGURE_STAMP)
 $(LIBJPEG_CONFIGURE_STAMP): $(LIBJPEG_SRC)

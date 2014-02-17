@@ -13,7 +13,7 @@ glib-src: $(GLIB_SRC)
 $(GLIB_SRC):
 	mkdir -p src
 	cd src && \
-	  wget -nc http://ftp.gnome.org/pub/gnome/sources/glib/$(shell echo $(GLIB_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/glib-${GLIB_VERSION}.tar.xz
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/glib/$(shell echo $(GLIB_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/glib-$(GLIB_VERSION).tar.xz
 
 glib-configure: $(GLIB_CONFIGURE_STAMP)
 $(GLIB_CONFIGURE_STAMP): $(GLIB_SRC) $(ZLIB_INSTALL_STAMP) $(GETTEXT_INSTALL_STAMP) $(LIBFFI_INSTALL_STAMP)
