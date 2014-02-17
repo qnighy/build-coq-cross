@@ -68,7 +68,7 @@ $(LABLGTK2_BUILD_STAMP): $(LABLGTK2_CONFIGURE_STAMP)
 	  OCAMLCDOTOPT=$(ARCH)-ocamlc.opt \
 	  CAMLOPT=$(ARCH)-ocamlopt \
 	  CAMLC=$(ARCH)-ocamlc \
-	    $(MAKE) all
+	    $(MAKE) world
 	touch $@
 
 lablgtk2-install: $(LABLGTK2_INSTALL_STAMP)
