@@ -17,8 +17,8 @@ $(CAIRO_SRC):
 
 cairo-configure: $(CAIRO_CONFIGURE_STAMP)
 $(CAIRO_CONFIGURE_STAMP): $(CAIRO_SRC)
-	$(MAKE) pixman-install
 	$(MAKE) freetype-install
+	$(MAKE) pixman-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(CAIRO_SRC)
@@ -41,6 +41,8 @@ $(CAIRO_INSTALL_STAMP):
 	touch $@
 
 cairo-force-install: $(CAIRO_BUILD_STAMP)
+	$(MAKE) freetype-install
+	$(MAKE) pixman-install
 	mkdir -p stamps
 	cd build/cairo-$(CAIRO_VERSION) && \
 	  $(SUDO) $(MAKE) install

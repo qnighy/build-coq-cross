@@ -17,7 +17,6 @@ $(PANGO_SRC):
 
 pango-configure: $(PANGO_CONFIGURE_STAMP)
 $(PANGO_CONFIGURE_STAMP): $(PANGO_SRC)
-	$(MAKE) zlib-install
 	$(MAKE) cairo-install
 	$(MAKE) glib-install
 	mkdir -p build
@@ -42,6 +41,8 @@ $(PANGO_INSTALL_STAMP):
 	touch $@
 
 pango-force-install: $(PANGO_BUILD_STAMP)
+	$(MAKE) cairo-install
+	$(MAKE) glib-install
 	mkdir -p stamps
 	cd build/pango-$(PANGO_VERSION) && \
 	  $(SUDO) $(MAKE) install

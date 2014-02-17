@@ -40,6 +40,7 @@ $(PIXMAN_INSTALL_STAMP):
 	touch $@
 
 pixman-force-install: $(PIXMAN_BUILD_STAMP)
+	$(MAKE) libpng-install
 	mkdir -p stamps
 	cd build/pixman-$(PIXMAN_VERSION) && \
 	  $(SUDO) $(MAKE) install

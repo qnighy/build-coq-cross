@@ -40,6 +40,7 @@ $(LIBPNG_INSTALL_STAMP):
 	touch $@
 
 libpng-force-install: $(LIBPNG_BUILD_STAMP)
+	$(MAKE) zlib-install
 	mkdir -p stamps
 	cd build/libpng-$(LIBPNG_VERSION) && \
 	  $(SUDO) $(MAKE) install

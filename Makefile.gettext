@@ -40,6 +40,7 @@ $(GETTEXT_INSTALL_STAMP):
 	touch $@
 
 gettext-force-install: $(GETTEXT_BUILD_STAMP)
+	$(MAKE) libiconv-install
 	mkdir -p stamps
 	cd build/gettext-$(GETTEXT_VERSION) && \
 	  $(SUDO) $(MAKE) install
