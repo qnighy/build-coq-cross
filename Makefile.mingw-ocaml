@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+
+MINGW_OCAML_GH_USERNAME := qnighy
+MINGW_OCAML_GH_HASH := 2528e76
+
+MINGW_OCAML_SRC := src/$(MINGW_OCAML_GH_USERNAME)-mingw-ocaml-$(MINGW_OCAML_GH_HASH).tar.gz
+MINGW_OCAML_BUILD_DIR := build/$(MINGW_OCAML_GH_USERNAME)-mingw-ocaml-$(MINGW_OCAML_GH_HASH)
+MINGW_OCAML_CONFIGURE_STAMP := $(MINGW_OCAML_BUILD_DIR)/.configure_stamp
+MINGW_OCAML_BUILD_STAMP := $(MINGW_OCAML_BUILD_DIR)/.build_stamp
+MINGW_OCAML_INSTALL_STAMP := stamps/mingw-ocaml.stamp
+
+FLEXDLL_VERSION := 0.31
+FLEXDLL_SRC := src/flexdll-$(FLEXDLL_VERSION).tar.gz
+flexdll-src: $(FLEXDLL_SRC)
+$(FLEXDLL_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://alain.frisch.fr/flexdll/flexdll-$(FLEXDLL_VERSION).tar.gz
+
+mingw-ocaml-src: $(MINGW_OCAML_SRC)
+$(MINGW_OCAML_SRC):
+	mkdir -p src
+	cd src && \
+	  wget https://github.com/$(MINGW_OCAML_GH_USERNAME)/mingw-ocaml/tarball/$(MINGW_OCAML_GH_HASH) \
+	    -O $(MINGW_OCAML_GH_USERNAME)-mingw-ocaml-$(MINGW_OCAML_GH_HASH).tar.gz
+
+mingw-ocaml-configure: $(MINGW_OCAML_CONFIGURE_STAMP)
+$(MINGW_OCAML_CONFIGURE_STAMP): $(MINGW_OCAML_SRC) $(FINDLIB_SRC) $(FLEXDLL_SRC) $(OCAML_SRC)
+	$(MAKE) ocaml-install
+	$(MAKE) findlib-install
+	$(MAKE) camlp5-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(MINGW_OCAML_SRC)
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  rm -r findlib && tar xvf ../../$(FINDLIB_SRC) && mv findlib-$(FINDLIB_VERSION) findlib
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  rm -r flexdll && tar xvf ../../$(FLEXDLL_SRC)
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  rm -r ocaml && tar xvf ../../$(OCAML_SRC) && mv ocaml-$(OCAML_VERSION) ocaml
+	sed -e '/^INSTALL_PREFIX/d' -i $(MINGW_OCAML_BUILD_DIR)/Makefile
+	sed -e '/^CONFIG_PREFIX/d' -i $(MINGW_OCAML_BUILD_DIR)/Makefile
+	sed -e '/^MINGW_HOST/d' -i $(MINGW_OCAML_BUILD_DIR)/Makefile
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  make clean
+	touch $@
+
+mingw-ocaml: $(MINGW_OCAML_BUILD_STAMP)
+$(MINGW_OCAML_BUILD_STAMP): $(MINGW_OCAML_CONFIGURE_STAMP)
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  MINGW_HOST=$(ARCH) \
+	  INSTALL_PREFIX=$(PREFIX) \
+	  CONFIG_PREFIX=$(PREFIX)/etc \
+	    make all
+	touch $@
+
+mingw-ocaml-install: $(MINGW_OCAML_INSTALL_STAMP)
+$(MINGW_OCAML_INSTALL_STAMP):
+	$(MAKE) mingw-ocaml-force-install
+	touch $@
+
+mingw-ocaml-force-install: $(MINGW_OCAML_BUILD_STAMP)
+	mkdir -p stamps
+	cd $(MINGW_OCAML_BUILD_DIR) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  MINGW_HOST=$(ARCH) \
+	  INSTALL_PREFIX=$(PREFIX) \
+	  CONFIG_PREFIX=$(PREFIX)/etc \
+	    make install

@@ -27,3 +27,4 @@ include Makefile.gtksourceview2
 include Makefile.ocaml
 include Makefile.findlib
 include Makefile.camlp5
+include Makefile.mingw-ocaml
