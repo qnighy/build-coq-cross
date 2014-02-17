@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+GETTEXT_VERSION := 0.18.3.1
+
+GETTEXT_SRC := src/gettext-$(GETTEXT_VERSION).tar.gz
+GETTEXT_CONFIGURE_STAMP := build/gettext-$(GETTEXT_VERSION)/.configure_stamp
+GETTEXT_BUILD_STAMP := build/gettext-$(GETTEXT_VERSION)/.build_stamp
+GETTEXT_INSTALL_STAMP := stamps/gettext.stamp
+
+.PHONY: gettext-src gettext-configure gettext gettext-install gettext-force-install
+
+gettext-src: $(GETTEXT_SRC)
+$(GETTEXT_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnu.org/pub/gnu/gettext/gettext-${GETTEXT_VERSION}.tar.gz
+
+gettext-configure: $(GETTEXT_CONFIGURE_STAMP)
+$(GETTEXT_CONFIGURE_STAMP): $(GETTEXT_SRC) $(LIBICONV_INSTALL_STAMP)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(GETTEXT_SRC)
+	cd build/gettext-$(GETTEXT_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+gettext: $(GETTEXT_BUILD_STAMP)
+$(GETTEXT_BUILD_STAMP): $(GETTEXT_CONFIGURE_STAMP)
+	cd build/gettext-$(GETTEXT_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+gettext-install: $(GETTEXT_INSTALL_STAMP)
+$(GETTEXT_INSTALL_STAMP):
+	$(MAKE) gettext-force-install
+	touch $@
+
+gettext-force-install: $(GETTEXT_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/gettext-$(GETTEXT_VERSION) && \
+	  $(SUDO) $(MAKE) install

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: libiconv-install
+DEFAULT_TARGET: gettext-install
 
 include config.mk
 include Makefile.zlib
@@ -14,3 +14,4 @@ include Makefile.freetype
 include Makefile.pixman
 include Makefile.cairo
 include Makefile.libiconv
+include Makefile.gettext
