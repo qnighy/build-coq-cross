@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: pango-install
+DEFAULT_TARGET: gdk-pixbuf-install
 
 include config.mk
 include Makefile.zlib
@@ -18,3 +18,4 @@ include Makefile.gettext
 include Makefile.libffi
 include Makefile.glib
 include Makefile.pango
+include Makefile.gdk-pixbuf

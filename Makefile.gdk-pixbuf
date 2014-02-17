@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+
+GDK_PIXBUF_VERSION := 2.28.2
+
+GDK_PIXBUF_SRC := src/gdk-pixbuf-$(GDK_PIXBUF_VERSION).tar.xz
+GDK_PIXBUF_CONFIGURE_STAMP := build/gdk-pixbuf-$(GDK_PIXBUF_VERSION)/.configure_stamp
+GDK_PIXBUF_BUILD_STAMP := build/gdk-pixbuf-$(GDK_PIXBUF_VERSION)/.build_stamp
+GDK_PIXBUF_INSTALL_STAMP := stamps/gdk-pixbuf.stamp
+
+.PHONY: gdk-pixbuf-src gdk-pixbuf-configure gdk-pixbuf gdk-pixbuf-install gdk-pixbuf-force-install
+
+gdk-pixbuf-src: $(GDK_PIXBUF_SRC)
+$(GDK_PIXBUF_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$(shell echo $(GDK_PIXBUF_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/gdk-pixbuf-$(GDK_PIXBUF_VERSION).tar.xz
+
+gdk-pixbuf-configure: $(GDK_PIXBUF_CONFIGURE_STAMP)
+$(GDK_PIXBUF_CONFIGURE_STAMP): $(GDK_PIXBUF_SRC)
+	$(MAKE) libpng-install
+	$(MAKE) libtiff-install
+	$(MAKE) glib-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(GDK_PIXBUF_SRC)
+	cd build/gdk-pixbuf-$(GDK_PIXBUF_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+gdk-pixbuf: $(GDK_PIXBUF_BUILD_STAMP)
+$(GDK_PIXBUF_BUILD_STAMP): $(GDK_PIXBUF_CONFIGURE_STAMP)
+	cd build/gdk-pixbuf-$(GDK_PIXBUF_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+gdk-pixbuf-install: $(GDK_PIXBUF_INSTALL_STAMP)
+$(GDK_PIXBUF_INSTALL_STAMP):
+	$(MAKE) gdk-pixbuf-force-install
+	touch $@
+
+gdk-pixbuf-force-install: $(GDK_PIXBUF_BUILD_STAMP)
+	$(MAKE) libpng-install
+	$(MAKE) libtiff-install
+	$(MAKE) glib-install
+	mkdir -p stamps
+	cd build/gdk-pixbuf-$(GDK_PIXBUF_VERSION) && \
+	  $(SUDO) $(MAKE) install
