@@ -25,13 +25,13 @@ $(FREETYPE_CONFIGURE_STAMP): $(FREETYPE_SRC)
 	cd build && \
 	  tar xvf ../$(FREETYPE_SRC)
 	cd build/freetype-$(FREETYPE_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)" \
-		    LIBPNG="$(shell $(PREFIX)/bin/libpng-config --libs)" \
-		    LIBPNG_CFLAGS="$(shell $(PREFIX)/bin/libpng-config --cflags)" \
-		    LIBPNG_LDFLAGS="$(shell $(PREFIX)/bin/libpng-config --ldflags)"
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)" \
+		    LIBPNG="$(shell $(ARCH_PREFIX)/bin/libpng-config --libs)" \
+		    LIBPNG_CFLAGS="$(shell $(ARCH_PREFIX)/bin/libpng-config --cflags)" \
+		    LIBPNG_LDFLAGS="$(shell $(ARCH_PREFIX)/bin/libpng-config --ldflags)"
 	touch $@
 
 freetype: $(FREETYPE_BUILD_STAMP)

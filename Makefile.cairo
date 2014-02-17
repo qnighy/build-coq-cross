@@ -23,10 +23,10 @@ $(CAIRO_CONFIGURE_STAMP): $(CAIRO_SRC)
 	cd build && \
 	  tar xvf ../$(CAIRO_SRC)
 	cd build/cairo-$(CAIRO_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
 	touch $@
 
 cairo: $(CAIRO_BUILD_STAMP)

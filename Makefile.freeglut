@@ -21,10 +21,10 @@ $(FREEGLUT_CONFIGURE_STAMP): $(FREEGLUT_SRC)
 	cd build && \
 	  tar xvf ../$(FREEGLUT_SRC)
 	cd build/freeglut-$(FREEGLUT_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
 	touch $@
 
 freeglut: $(FREEGLUT_BUILD_STAMP)

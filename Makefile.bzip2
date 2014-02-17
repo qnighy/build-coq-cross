@@ -28,10 +28,10 @@ bzip2: $(BZIP2_BUILD_STAMP)
 $(BZIP2_BUILD_STAMP): $(BZIP2_CONFIGURE_STAMP)
 	cd build/bzip2-$(BZIP2_VERSION) && \
 	  $(MAKE) all \
-	    CPPFLAGS="-I$(PREFIX)/include" \
-	    LDFLAGS="-L$(PREFIX)/lib" \
+	    CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	    LDFLAGS="-L$(ARCH_PREFIX)/lib" \
 	    ARCH=$(ARCH) \
-	    PREFIX=$(PREFIX)
+	    ARCH_PREFIX=$(PREFIX)
 	touch $@
 
 bzip2-install: $(BZIP2_INSTALL_STAMP)
@@ -43,7 +43,7 @@ bzip2-force-install: $(BZIP2_BUILD_STAMP)
 	mkdir -p stamps
 	cd build/bzip2-$(BZIP2_VERSION) && \
 	  $(SUDO) $(MAKE) install \
-	    CPPFLAGS="-I$(PREFIX)/include" \
-	    LDFLAGS="-L$(PREFIX)/lib" \
+	    CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	    LDFLAGS="-L$(ARCH_PREFIX)/lib" \
 	    ARCH=$(ARCH) \
-	    PREFIX=$(PREFIX)
+	    ARCH_PREFIX=$(PREFIX)

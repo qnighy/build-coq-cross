@@ -21,10 +21,10 @@ $(LIBJPEG_CONFIGURE_STAMP): $(LIBJPEG_SRC)
 	cd build && \
 	  tar xvf ../$(LIBJPEG_SRC)
 	cd build/jpeg-$(LIBJPEG_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
 	touch $@
 
 libjpeg: $(LIBJPEG_BUILD_STAMP)

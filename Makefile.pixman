@@ -22,10 +22,10 @@ $(PIXMAN_CONFIGURE_STAMP): $(PIXMAN_SRC)
 	cd build && \
 	  tar xvf ../$(PIXMAN_SRC)
 	cd build/pixman-$(PIXMAN_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
 	touch $@
 
 pixman: $(PIXMAN_BUILD_STAMP)

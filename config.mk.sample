@@ -2,4 +2,5 @@
 
 ARCH := i686-w64-mingw32
 SUDO := sudo
-PREFIX := /usr/local/$(ARCH)
+PREFIX := /usr/local
+ARCH_PREFIX := $(PREFIX)/$(ARCH)

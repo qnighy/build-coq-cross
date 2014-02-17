@@ -24,11 +24,11 @@ $(GTKSOURCEVIEW2_CONFIGURE_STAMP): $(GTKSOURCEVIEW2_SRC)
 	  tar xvf ../$(GTKSOURCEVIEW2_SRC)
 	# TODO: CFLAGS: ad-hoc for version problem
 	cd build/gtksourceview-$(GTKSOURCEVIEW2_VERSION) && \
-	  CPPFLAGS="-I$(PREFIX)/include" \
-	  LDFLAGS="-L$(PREFIX)/lib" \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
 	  CFLAGS="-DG_CONST_RETURN=const -DG_UNICODE_COMBINING_MARK=G_UNICODE_SPACING_MARK" \
-	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
-	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
 	touch $@
 
 gtksourceview2: $(GTKSOURCEVIEW2_BUILD_STAMP)
@@ -43,6 +43,8 @@ $(GTKSOURCEVIEW2_INSTALL_STAMP):
 	touch $@
 
 gtksourceview2-force-install: $(GTKSOURCEVIEW2_BUILD_STAMP)
+	$(MAKE) gtk2-install
+	$(MAKE) libxml2-install
 	mkdir -p stamps
 	cd build/gtksourceview-$(GTKSOURCEVIEW2_VERSION) && \
 	  $(SUDO) $(MAKE) install

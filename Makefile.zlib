@@ -26,7 +26,7 @@ zlib: $(ZLIB_BUILD_STAMP)
 $(ZLIB_BUILD_STAMP): $(ZLIB_CONFIGURE_STAMP)
 	cd build/zlib-$(ZLIB_VERSION) && \
 	  $(MAKE) all \
-	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc
+	    ARCH_PREFIX=$(ARCH)- -fwin32/Makefile.gcc
 	touch $@
 
 zlib-install: $(ZLIB_INSTALL_STAMP)
@@ -38,8 +38,8 @@ zlib-force-install: $(ZLIB_BUILD_STAMP)
 	mkdir -p stamps
 	cd build/zlib-$(ZLIB_VERSION) && \
 	  $(SUDO) $(MAKE) install \
-	    PREFIX=$(ARCH)- -fwin32/Makefile.gcc \
-	    INCLUDE_PATH="$(PREFIX)/include" \
-	    LIBRARY_PATH="$(PREFIX)/lib" \
-	    BINARY_PATH="$(PREFIX)/bin" \
+	    ARCH_PREFIX=$(ARCH)- -fwin32/Makefile.gcc \
+	    INCLUDE_PATH="$(ARCH_PREFIX)/include" \
+	    LIBRARY_PATH="$(ARCH_PREFIX)/lib" \
+	    BINARY_PATH="$(ARCH_PREFIX)/bin" \
 	    SHARED_MODE=1
