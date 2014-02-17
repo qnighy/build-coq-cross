@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+CAMLP5_VERSION := 6.11
+
+CAMLP5_SRC := src/camlp5-$(CAMLP5_VERSION).tgz
+CAMLP5_CONFIGURE_STAMP := build/camlp5-$(CAMLP5_VERSION)/.configure_stamp
+CAMLP5_BUILD_STAMP := build/camlp5-$(CAMLP5_VERSION)/.build_stamp
+CAMLP5_INSTALL_STAMP := stamps/camlp5.stamp
+
+.PHONY: camlp5-src camlp5-configure camlp5 camlp5-install camlp5-force-install
+
+camlp5-src: $(CAMLP5_SRC)
+$(CAMLP5_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://pauillac.inria.fr/~ddr/camlp5/distrib/src/camlp5-6.11.tgz
+
+camlp5-configure: $(CAMLP5_CONFIGURE_STAMP)
+$(CAMLP5_CONFIGURE_STAMP): $(CAMLP5_SRC)
+	$(MAKE) ocaml-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(CAMLP5_SRC)
+	cd build/camlp5-$(CAMLP5_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    ./configure
+	touch $@
+
+camlp5: $(CAMLP5_BUILD_STAMP)
+$(CAMLP5_BUILD_STAMP): $(CAMLP5_CONFIGURE_STAMP)
+	cd build/camlp5-$(CAMLP5_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    $(MAKE) world.opt
+	touch $@
+
+camlp5-install: $(CAMLP5_INSTALL_STAMP)
+$(CAMLP5_INSTALL_STAMP):
+	$(MAKE) camlp5-force-install
+	touch $@
+
+camlp5-force-install: $(CAMLP5_BUILD_STAMP)
+	$(MAKE) ocaml-install
+	mkdir -p stamps
+	cd build/camlp5-$(CAMLP5_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    $(SUDO) $(MAKE) install

@@ -24,3 +24,6 @@ include Makefile.gtk2
 include Makefile.xz-
 include Makefile.libxml2
 include Makefile.gtksourceview2
+include Makefile.ocaml
+include Makefile.findlib
+include Makefile.camlp5

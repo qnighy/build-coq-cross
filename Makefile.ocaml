@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+OCAML_VERSION := 4.01.0
+
+OCAML_SRC := src/ocaml-$(OCAML_VERSION).tar.xz
+OCAML_CONFIGURE_STAMP := build/ocaml-$(OCAML_VERSION)/.configure_stamp
+OCAML_BUILD_STAMP := build/ocaml-$(OCAML_VERSION)/.build_stamp
+OCAML_INSTALL_STAMP := stamps/ocaml.stamp
+
+.PHONY: ocaml-src ocaml-configure ocaml ocaml-install ocaml-force-install
+
+ocaml-src: $(OCAML_SRC)
+$(OCAML_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://caml.inria.fr/pub/distrib/ocaml-$(shell echo $(OCAML_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/ocaml-$(OCAML_VERSION).tar.xz
+
+ocaml-configure: $(OCAML_CONFIGURE_STAMP)
+$(OCAML_CONFIGURE_STAMP): $(OCAML_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(OCAML_SRC)
+	cd build/ocaml-$(OCAML_VERSION) && \
+	    ./configure -prefix "$(PREFIX)"
+	touch $@
+
+ocaml: $(OCAML_BUILD_STAMP)
+$(OCAML_BUILD_STAMP): $(OCAML_CONFIGURE_STAMP)
+	cd build/ocaml-$(OCAML_VERSION) && \
+	  $(MAKE) world.opt
+	touch $@
+
+ocaml-install: $(OCAML_INSTALL_STAMP)
+$(OCAML_INSTALL_STAMP):
+	$(MAKE) ocaml-force-install
+	touch $@
+
+ocaml-force-install: $(OCAML_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/ocaml-$(OCAML_VERSION) && \
+	  $(SUDO) $(MAKE) install

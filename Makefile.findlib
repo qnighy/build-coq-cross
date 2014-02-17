@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+FINDLIB_VERSION := 1.4
+
+FINDLIB_SRC := src/findlib-$(FINDLIB_VERSION).tar.gz
+FINDLIB_CONFIGURE_STAMP := build/findlib-$(FINDLIB_VERSION)/.configure_stamp
+FINDLIB_BUILD_STAMP := build/findlib-$(FINDLIB_VERSION)/.build_stamp
+FINDLIB_INSTALL_STAMP := stamps/findlib.stamp
+
+.PHONY: findlib-src findlib-configure findlib findlib-install findlib-force-install
+
+findlib-src: $(FINDLIB_SRC)
+$(FINDLIB_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://download.camlcity.org/download/findlib-$(FINDLIB_VERSION).tar.gz
+
+findlib-configure: $(FINDLIB_CONFIGURE_STAMP)
+$(FINDLIB_CONFIGURE_STAMP): $(FINDLIB_SRC)
+	$(MAKE) ocaml-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(FINDLIB_SRC)
+	cd build/findlib-$(FINDLIB_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    ./configure
+	touch $@
+
+findlib: $(FINDLIB_BUILD_STAMP)
+$(FINDLIB_BUILD_STAMP): $(FINDLIB_CONFIGURE_STAMP)
+	cd build/findlib-$(FINDLIB_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    $(MAKE) opt all-config
+	touch $@
+
+findlib-install: $(FINDLIB_INSTALL_STAMP)
+$(FINDLIB_INSTALL_STAMP):
+	$(MAKE) findlib-force-install
+	touch $@
+
+findlib-force-install: $(FINDLIB_BUILD_STAMP)
+	$(MAKE) ocaml-install
+	mkdir -p stamps
+	cd build/findlib-$(FINDLIB_VERSION) && \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	    $(SUDO) $(MAKE) install
