@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+LIBICONV_VERSION := 1.14
+
+LIBICONV_SRC := src/libiconv-$(LIBICONV_VERSION).tar.gz
+LIBICONV_CONFIGURE_STAMP := build/libiconv-$(LIBICONV_VERSION)/.configure_stamp
+LIBICONV_BUILD_STAMP := build/libiconv-$(LIBICONV_VERSION)/.build_stamp
+LIBICONV_INSTALL_STAMP := stamps/libiconv.stamp
+
+.PHONY: libiconv-src libiconv-configure libiconv libiconv-install libiconv-force-install
+
+libiconv-src: $(LIBICONV_SRC)
+$(LIBICONV_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnu.org/pub/gnu/libiconv/libiconv-$(LIBICONV_VERSION).tar.gz
+
+libiconv-configure: $(LIBICONV_CONFIGURE_STAMP)
+$(LIBICONV_CONFIGURE_STAMP): $(LIBICONV_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LIBICONV_SRC)
+	cd build/libiconv-$(LIBICONV_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+libiconv: $(LIBICONV_BUILD_STAMP)
+$(LIBICONV_BUILD_STAMP): $(LIBICONV_CONFIGURE_STAMP)
+	cd build/libiconv-$(LIBICONV_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+libiconv-install: $(LIBICONV_INSTALL_STAMP)
+$(LIBICONV_INSTALL_STAMP):
+	$(MAKE) libiconv-force-install
+	touch $@
+
+libiconv-force-install: $(LIBICONV_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/libiconv-$(LIBICONV_VERSION) && \
+	  $(SUDO) $(MAKE) install

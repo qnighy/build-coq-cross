@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: cairo-install
+DEFAULT_TARGET: libiconv-install
 
 include config.mk
 include Makefile.zlib
@@ -13,3 +13,4 @@ include Makefile.bzip2
 include Makefile.freetype
 include Makefile.pixman
 include Makefile.cairo
+include Makefile.libiconv
