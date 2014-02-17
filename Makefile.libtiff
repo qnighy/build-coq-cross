@@ -23,6 +23,7 @@ $(LIBTIFF_CONFIGURE_STAMP): $(LIBTIFF_SRC) $(ZLIB_INSTALL_STAMP) $(LIBJPEG_INSTA
 	cd build/tiff-$(LIBTIFF_VERSION) && \
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
 	touch $@
 

@@ -23,6 +23,7 @@ $(FREEGLUT_CONFIGURE_STAMP): $(FREEGLUT_SRC)
 	cd build/freeglut-$(FREEGLUT_VERSION) && \
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
 	touch $@
 

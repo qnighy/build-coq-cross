@@ -23,6 +23,7 @@ $(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC) $(ZLIB_INSTALL_STAMP)
 	cd build/libpng-$(LIBPNG_VERSION) && \
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
 	touch $@
 

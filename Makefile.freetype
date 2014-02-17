@@ -23,6 +23,7 @@ $(FREETYPE_CONFIGURE_STAMP): $(FREETYPE_SRC) $(ZLIB_INSTALL_STAMP) $(BZIP2_INSTA
 	cd build/freetype-$(FREETYPE_VERSION) && \
 	  CPPFLAGS="-I$(PREFIX)/include" \
 	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
 	    ./configure --host=$(ARCH) --prefix="$(PREFIX)" \
 		    LIBPNG="$(shell $(PREFIX)/bin/libpng-config --libs)" \
 		    LIBPNG_CFLAGS="$(shell $(PREFIX)/bin/libpng-config --cflags)" \
