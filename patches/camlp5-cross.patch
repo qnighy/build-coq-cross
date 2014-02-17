@@ -1,0 +1,12 @@
+diff -ru camlp5-6.11.orig/configure camlp5-6.11/configure
+--- camlp5-6.11.orig/configure	2012-07-01 10:27:07.000000000 +0900
++++ camlp5-6.11/configure	2014-02-16 18:52:32.644590787 +0900
+@@ -150,7 +150,7 @@
+ OVERSION=$(echo "$oversion" | sed -e 's/[ +].*$//')
+ 
+ verspfx=
+-if [ "$ocamln" != "ocaml" ]; then verspfx=/$ocamln; fi
++# if [ "$ocamln" != "ocaml" ]; then verspfx=/$ocamln; fi
+ 
+ if [ -d "ocaml_stuff$verspfx/$OVERSION" -a \
+      -f "ocaml_src/lib/versdep$verspfx/$OVERSION.ml" ]

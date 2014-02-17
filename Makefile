@@ -29,3 +29,4 @@ include Makefile.findlib
 include Makefile.camlp5
 include Makefile.mingw-ocaml
 include Makefile.lablgtk2
+include Makefile.mingw-camlp5

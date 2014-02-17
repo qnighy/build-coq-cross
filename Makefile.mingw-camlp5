@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+
+MINGW_CAMLP5_CONFIGURE_STAMP := build/mingw-camlp5/.configure_stamp
+MINGW_CAMLP5_BUILD_STAMP := build/mingw-camlp5/.build_stamp
+MINGW_CAMLP5_INSTALL_STAMP := stamps/mingw-camlp5.stamp
+
+.PHONY: mingw-camlp5-configure mingw-camlp5 mingw-camlp5-install mingw-camlp5-force-install
+
+mingw-camlp5-configure: $(MINGW_CAMLP5_CONFIGURE_STAMP)
+$(MINGW_CAMLP5_CONFIGURE_STAMP): $(CAMLP5_SRC)
+	$(MAKE) mingw-ocaml-install
+	mkdir -p build/mingw-camlp5
+	cd build/mingw-camlp5 && \
+	  tar xvf ../../$(CAMLP5_SRC)
+	cd build/mingw-camlp5/camlp5-$(CAMLP5_VERSION) && \
+	  patch -p1 < ../../../patches/camlp5-cross.patch
+	cd build/mingw-camlp5/camlp5-$(CAMLP5_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	    ./configure -prefix "$(ARCH_PREFIX)" -oname $(ARCH)-ocaml
+	touch $@
+
+mingw-camlp5: $(MINGW_CAMLP5_BUILD_STAMP)
+$(MINGW_CAMLP5_BUILD_STAMP): $(MINGW_CAMLP5_CONFIGURE_STAMP)
+	cd build/mingw-camlp5/camlp5-$(CAMLP5_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	    $(MAKE) world.opt
+	touch $@
+
+mingw-camlp5-install: $(MINGW_CAMLP5_INSTALL_STAMP)
+$(MINGW_CAMLP5_INSTALL_STAMP):
+	$(MAKE) mingw-camlp5-force-install
+	touch $@
+
+mingw-camlp5-force-install: $(MINGW_CAMLP5_BUILD_STAMP)
+	$(MAKE) mingw-ocaml-install
+	mkdir -p stamps
+	cd build/mingw-camlp5/camlp5-$(CAMLP5_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	    $(SUDO) $(MAKE) install
