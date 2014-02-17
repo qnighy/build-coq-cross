@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: pixman-install
+DEFAULT_TARGET: cairo-install
 
 include config.mk
 include Makefile.zlib
@@ -12,3 +12,4 @@ include Makefile.libtiff
 include Makefile.bzip2
 include Makefile.freetype
 include Makefile.pixman
+include Makefile.cairo
