@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+PIXMAN_VERSION := 0.32.4
+
+PIXMAN_SRC := src/pixman-$(PIXMAN_VERSION).tar.gz
+PIXMAN_CONFIGURE_STAMP := build/pixman-$(PIXMAN_VERSION)/.configure_stamp
+PIXMAN_BUILD_STAMP := build/pixman-$(PIXMAN_VERSION)/.build_stamp
+PIXMAN_INSTALL_STAMP := stamps/pixman.stamp
+
+.PHONY: pixman-src pixman-configure pixman pixman-install pixman-force-install
+
+pixman-src: $(PIXMAN_SRC)
+$(PIXMAN_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://cairographics.org/releases/pixman-$(PIXMAN_VERSION).tar.gz
+
+pixman-configure: $(PIXMAN_CONFIGURE_STAMP)
+$(PIXMAN_CONFIGURE_STAMP): $(PIXMAN_SRC) $(LIBPNG_INSTALL_STAMP)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(PIXMAN_SRC)
+	cd build/pixman-$(PIXMAN_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+pixman: $(PIXMAN_BUILD_STAMP)
+$(PIXMAN_BUILD_STAMP): $(PIXMAN_CONFIGURE_STAMP)
+	cd build/pixman-$(PIXMAN_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+pixman-install: $(PIXMAN_INSTALL_STAMP)
+$(PIXMAN_INSTALL_STAMP):
+	$(MAKE) pixman-force-install
+	touch $@
+
+pixman-force-install: $(PIXMAN_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/pixman-$(PIXMAN_VERSION) && \
+	  $(SUDO) $(MAKE) install

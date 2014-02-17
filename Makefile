@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: freetype-install
+DEFAULT_TARGET: pixman-install
 
 include config.mk
 include Makefile.zlib
@@ -11,3 +11,4 @@ include Makefile.freeglut
 include Makefile.libtiff
 include Makefile.bzip2
 include Makefile.freetype
+include Makefile.pixman
