@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: gdk-pixbuf-install
+DEFAULT_TARGET: atk-install
 
 include config.mk
 include Makefile.zlib
@@ -19,3 +19,4 @@ include Makefile.libffi
 include Makefile.glib
 include Makefile.pango
 include Makefile.gdk-pixbuf
+include Makefile.atk

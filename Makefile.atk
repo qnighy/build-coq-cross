@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+ATK_VERSION := 2.8.0
+
+ATK_SRC := src/atk-$(ATK_VERSION).tar.xz
+ATK_CONFIGURE_STAMP := build/atk-$(ATK_VERSION)/.configure_stamp
+ATK_BUILD_STAMP := build/atk-$(ATK_VERSION)/.build_stamp
+ATK_INSTALL_STAMP := stamps/atk.stamp
+
+.PHONY: atk-src atk-configure atk atk-install atk-force-install
+
+atk-src: $(ATK_SRC)
+$(ATK_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/atk/$(shell echo $(ATK_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/atk-$(ATK_VERSION).tar.xz
+
+atk-configure: $(ATK_CONFIGURE_STAMP)
+$(ATK_CONFIGURE_STAMP): $(ATK_SRC)
+	$(MAKE) glib-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(ATK_SRC)
+	cd build/atk-$(ATK_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+atk: $(ATK_BUILD_STAMP)
+$(ATK_BUILD_STAMP): $(ATK_CONFIGURE_STAMP)
+	cd build/atk-$(ATK_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+atk-install: $(ATK_INSTALL_STAMP)
+$(ATK_INSTALL_STAMP):
+	$(MAKE) atk-force-install
+	touch $@
+
+atk-force-install: $(ATK_BUILD_STAMP)
+	$(MAKE) glib-install
+	mkdir -p stamps
+	cd build/atk-$(ATK_VERSION) && \
+	  $(SUDO) $(MAKE) install
