@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+LIBFFI_VERSION := 3.0.13
+
+LIBFFI_SRC := src/libffi-$(LIBFFI_VERSION).tar.gz
+LIBFFI_CONFIGURE_STAMP := build/libffi-$(LIBFFI_VERSION)/.configure_stamp
+LIBFFI_BUILD_STAMP := build/libffi-$(LIBFFI_VERSION)/.build_stamp
+LIBFFI_INSTALL_STAMP := stamps/libffi.stamp
+
+.PHONY: libffi-src libffi-configure libffi libffi-install libffi-force-install
+
+libffi-src: $(LIBFFI_SRC)
+$(LIBFFI_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc ftp://sourceware.org/pub/libffi/libffi-$(LIBFFI_VERSION).tar.gz
+
+libffi-configure: $(LIBFFI_CONFIGURE_STAMP)
+$(LIBFFI_CONFIGURE_STAMP): $(LIBFFI_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LIBFFI_SRC)
+	cd build/libffi-$(LIBFFI_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+libffi: $(LIBFFI_BUILD_STAMP)
+$(LIBFFI_BUILD_STAMP): $(LIBFFI_CONFIGURE_STAMP)
+	cd build/libffi-$(LIBFFI_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+libffi-install: $(LIBFFI_INSTALL_STAMP)
+$(LIBFFI_INSTALL_STAMP):
+	$(MAKE) libffi-force-install
+	touch $@
+
+libffi-force-install: $(LIBFFI_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/libffi-$(LIBFFI_VERSION) && \
+	  $(SUDO) $(MAKE) install

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: gettext-install
+DEFAULT_TARGET: libffi-install
 
 include config.mk
 include Makefile.zlib
@@ -15,3 +15,4 @@ include Makefile.pixman
 include Makefile.cairo
 include Makefile.libiconv
 include Makefile.gettext
+include Makefile.libffi
