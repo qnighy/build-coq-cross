@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: libffi-install
+DEFAULT_TARGET: glib-install
 
 include config.mk
 include Makefile.zlib
@@ -16,3 +16,4 @@ include Makefile.cairo
 include Makefile.libiconv
 include Makefile.gettext
 include Makefile.libffi
+include Makefile.glib

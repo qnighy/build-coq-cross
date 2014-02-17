@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+GLIB_VERSION := 2.36.4
+
+GLIB_SRC := src/glib-$(GLIB_VERSION).tar.xz
+GLIB_CONFIGURE_STAMP := build/glib-$(GLIB_VERSION)/.configure_stamp
+GLIB_BUILD_STAMP := build/glib-$(GLIB_VERSION)/.build_stamp
+GLIB_INSTALL_STAMP := stamps/glib.stamp
+
+.PHONY: glib-src glib-configure glib glib-install glib-force-install
+
+glib-src: $(GLIB_SRC)
+$(GLIB_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/glib/$(shell echo $(GLIB_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/glib-${GLIB_VERSION}.tar.xz
+
+glib-configure: $(GLIB_CONFIGURE_STAMP)
+$(GLIB_CONFIGURE_STAMP): $(GLIB_SRC) $(ZLIB_INSTALL_STAMP) $(GETTEXT_INSTALL_STAMP) $(LIBFFI_INSTALL_STAMP)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(GLIB_SRC)
+	cd build/glib-$(GLIB_VERSION) && \
+	  aclocal && automake ##### TODO #####
+	cd build/glib-$(GLIB_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+glib: $(GLIB_BUILD_STAMP)
+$(GLIB_BUILD_STAMP): $(GLIB_CONFIGURE_STAMP)
+	cd build/glib-$(GLIB_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+glib-install: $(GLIB_INSTALL_STAMP)
+$(GLIB_INSTALL_STAMP):
+	$(MAKE) glib-force-install
+	touch $@
+
+glib-force-install: $(GLIB_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/glib-$(GLIB_VERSION) && \
+	  $(SUDO) $(MAKE) install
