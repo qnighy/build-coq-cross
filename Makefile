@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: gtksourceview2-install
+DEFAULT_TARGET: mingw-coq-export
 
 include config.mk
 include Makefile.zlib
@@ -30,3 +30,5 @@ include Makefile.camlp5
 include Makefile.mingw-ocaml
 include Makefile.lablgtk2
 include Makefile.mingw-camlp5
+include Makefile.coq
+include Makefile.mingw-coq

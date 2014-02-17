@@ -1,0 +1,83 @@
+#!/usr/bin/make -f
+
+MINGW_COQ_CONFIGURE_STAMP := build/mingw-coq/.configure_stamp
+MINGW_COQ_BUILD_STAMP := build/mingw-coq/.build_stamp
+MINGW_COQ_INSTALL_STAMP := stamps/mingw-coq.stamp
+
+.PHONY: mingw-coq-configure mingw-coq mingw-coq-install mingw-coq-force-install
+
+mingw-coq-configure: $(MINGW_COQ_CONFIGURE_STAMP)
+$(MINGW_COQ_CONFIGURE_STAMP): $(COQ_SRC)
+	$(MAKE) mingw-ocaml-install
+	$(MAKE) mingw-camlp5-install
+	$(MAKE) lablgtk2-install
+	mkdir -p build/mingw-coq
+	cd build/mingw-coq && \
+	  tar xvf ../../$(COQ_SRC)
+	cd build/mingw-coq/coq-$(COQ_VERSION) && \
+	  patch -p1 < ../../../patches/mingw-coq-filename.patch
+	cd build/mingw-coq/coq-$(COQ_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	    ./configure -arch win32 -local
+	sed -e 's/let w32pref = .*/let w32pref = "$(ARCH)"/' \
+	  -i build/mingw-coq/coq-$(COQ_VERSION)/myocamlbuild.ml
+	sed -e 's|let w32lib = .*|let w32lib = "$(ARCH_PREFIX)/lib/"|' \
+	  -i build/mingw-coq/coq-$(COQ_VERSION)/myocamlbuild.ml
+	sed -e 's|let w32bin = .*|let w32bin = "$(ARCH_PREFIX)/bin/"|' \
+	  -i build/mingw-coq/coq-$(COQ_VERSION)/myocamlbuild.ml
+	sed -e 's|Filename.concat camlbin|"$(PREFIX)/bin/$(ARCH)-" ^|' \
+	  -i build/mingw-coq/coq-$(COQ_VERSION)/scripts/coqmktop.ml
+	touch $@
+
+mingw-coq: $(MINGW_COQ_BUILD_STAMP)
+$(MINGW_COQ_BUILD_STAMP): $(MINGW_COQ_CONFIGURE_STAMP)
+	cd build/mingw-coq/coq-$(COQ_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	    ./build win32
+	touch $@
+
+MINGW_COQ_BINARY_DIR := build/mingw-coq/coq-$(COQ_VERSION)/_build
+COQ_BINARY_DIR := build/coq-$(COQ_VERSION)
+
+mingw-coq-export: $(MINGW_COQ_BUILD_STAMP) $(COQ_BUILD_STAMP)
+	mkdir -p $(BINDIST)/bin
+	mkdir -p $(BINDIST)/plugins/micromega
+	mkdir -p $(BINDIST)/states
+	for f in mkwinapp coq_makefile coqdep coqwc gallina; do \
+	  cp $(MINGW_COQ_BINARY_DIR)/tools/$$f.native $(BINDIST)/bin/$$f.exe; \
+	done
+	cp $(MINGW_COQ_BINARY_DIR)/tools/coq_tex.native              $(BINDIST)/bin/coq-tex.exe
+	cp $(MINGW_COQ_BINARY_DIR)/tools/coqdoc/main.native          $(BINDIST)/bin/coqdoc.exe
+	cp $(MINGW_COQ_BINARY_DIR)/scripts/coqc.native               $(BINDIST)/bin/coqc.exe
+	cp $(MINGW_COQ_BINARY_DIR)/scripts/coqmktop.native           $(BINDIST)/bin/coqmktop.exe
+	cp $(MINGW_COQ_BINARY_DIR)/checker/main.native               $(BINDIST)/bin/coqchk.exe
+	cp $(MINGW_COQ_BINARY_DIR)/ide/coqide_main.native            $(BINDIST)/bin/coqide.exe
+	cp $(MINGW_COQ_BINARY_DIR)/toplevel/coqtop.native            $(BINDIST)/bin/coqtop.exe
+	cp $(MINGW_COQ_BINARY_DIR)/plugins/micromega/csdpcert.native $(BINDIST)/plugins/micromega/csdpcert.exe
+	cp       $(COQ_BINARY_DIR)/states/initial.coq                $(BINDIST)/states/initial.coq
+	for d in `cd $(MINGW_COQ_BINARY_DIR); find plugins -type d`; do \
+	  mkdir -p $(BINDIST)/$$d; \
+	done
+	for f in `cd $(MINGW_COQ_BINARY_DIR); find plugins -name \*.cmxs`; do \
+	  cp $(MINGW_COQ_BINARY_DIR)/$$f $(BINDIST)/$$f; \
+	done
+	for d in `cd $(COQ_BINARY_DIR); find theories -type d`; do \
+	  mkdir -p $(BINDIST)/$$d; \
+	done
+	for f in `cd $(COQ_BINARY_DIR); find theories -name \*.vo`; do \
+	  cp $(COQ_BINARY_DIR)/$$f $(BINDIST)/$$f; \
+	done
+	
+	for f in libatk-1.0-0.dll libgtk-win32-2.0-0.dll libpangowin32-1.0-0.dll libpangocairo-1.0-0.dll libpango-1.0-0.dll libgobject-2.0-0.dll libgmodule-2.0-0.dll libintl-8.dll libiconv-2.dll libglib-2.0-0.dll libgio-2.0-0.dll libgdk_pixbuf-2.0-0.dll libpixman-1-0.dll libpng16-16.dll libfreetype-6.dll libcairo-2.dll libffi-6.dll libgdk-win32-2.0-0.dll; do \
+	  cp $(ARCH_PREFIX)/bin/$$f $(BINDIST)/bin; \
+	done
+	cp /usr/$(ARCH)/lib/libwinpthread-1.dll $(BINDIST)/bin
+

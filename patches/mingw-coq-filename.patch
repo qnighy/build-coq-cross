@@ -1,0 +1,150 @@
+diff -ru coq-8.4pl3.orig/checker/main.ml coq-8.4pl3/checker/main.ml
+--- coq-8.4pl3.orig/checker/main.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/checker/main.ml	2014-02-17 23:51:40.634126208 +0900
+@@ -1,2 +1,3 @@
+ 
++let _ = Filename.dir_sep.[0] <- '\\'
+ let _ = Checker.start ()
+diff -ru coq-8.4pl3.orig/ide/coqide_main.ml4 coq-8.4pl3/ide/coqide_main.ml4
+--- coq-8.4pl3.orig/ide/coqide_main.ml4	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/ide/coqide_main.ml4	2014-02-17 23:51:04.116886297 +0900
+@@ -6,6 +6,7 @@
+ (*         *       GNU Lesser General Public License Version 2.1        *)
+ (************************************************************************)
+ 
++let _ = Filename.dir_sep.[0] <- '\\'
+ let _ = Coqide.ignore_break ()
+ let _ = GtkMain.Main.init ()
+ 
+diff -ru coq-8.4pl3.orig/plugins/micromega/csdpcert.ml coq-8.4pl3/plugins/micromega/csdpcert.ml
+--- coq-8.4pl3.orig/plugins/micromega/csdpcert.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/plugins/micromega/csdpcert.ml	2014-02-17 23:53:13.508792109 +0900
+@@ -192,6 +192,7 @@
+ 
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   try
+     let (prover,poly) = (input_value stdin : provername * micromega_polys) in
+     let cert = run_prover prover poly in
+diff -ru coq-8.4pl3.orig/scripts/coqc.ml coq-8.4pl3/scripts/coqc.ml
+--- coq-8.4pl3.orig/scripts/coqc.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/scripts/coqc.ml	2014-02-17 23:51:25.289588758 +0900
+@@ -176,6 +176,7 @@
+  * and then call the compilation on each file *)
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   let cfiles, args = parse_args () in
+     if cfiles = [] then begin
+       prerr_endline "coqc: too few arguments" ;
+diff -ru coq-8.4pl3.orig/tools/coq_makefile.ml coq-8.4pl3/tools/coq_makefile.ml
+--- coq-8.4pl3.orig/tools/coq_makefile.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coq_makefile.ml	2014-02-17 23:52:46.252060104 +0900
+@@ -711,6 +711,7 @@
+   exit 0
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   let args =
+     if Array.length Sys.argv = 1 then usage ();
+     List.tl (Array.to_list Sys.argv)
+diff -ru coq-8.4pl3.orig/tools/coq_tex.ml coq-8.4pl3/tools/coq_tex.ml
+--- coq-8.4pl3.orig/tools/coq_tex.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coq_tex.ml	2014-02-17 23:52:53.584258022 +0900
+@@ -279,6 +279,7 @@
+   end
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   parse_cl ();
+   if !image = "" then image := Filename.quote (find_coqtop ());
+   if !boot then image := !image ^ " -boot";
+diff -ru coq-8.4pl3.orig/tools/coqdep.ml coq-8.4pl3/tools/coqdep.ml
+--- coq-8.4pl3.orig/tools/coqdep.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coqdep.ml	2014-02-17 23:52:21.111402886 +0900
+@@ -190,6 +190,7 @@
+   | [] -> ()
+ 
+ let coqdep () =
++  Filename.dir_sep.[0] <- '\\';
+   if Array.length Sys.argv < 2 then usage ();
+   parse (List.tl (Array.to_list Sys.argv));
+   if not Coq_config.has_natdynlink then option_natdynlk := false;
+diff -ru coq-8.4pl3.orig/tools/coqdep_boot.ml coq-8.4pl3/tools/coqdep_boot.ml
+--- coq-8.4pl3.orig/tools/coqdep_boot.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coqdep_boot.ml	2014-02-17 23:52:03.258887233 +0900
+@@ -32,6 +32,7 @@
+   | [] -> ()
+ 
+ let coqdep_boot () =
++  Filename.dir_sep.[0] <- '\\';
+   if Array.length Sys.argv < 2 then exit 1;
+   parse (List.tl (Array.to_list Sys.argv));
+   if !option_c then
+diff -ru coq-8.4pl3.orig/tools/coqdoc/main.ml coq-8.4pl3/tools/coqdoc/main.ml
+--- coq-8.4pl3.orig/tools/coqdoc/main.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coqdoc/main.ml	2014-02-17 23:52:31.707676317 +0900
+@@ -553,6 +553,7 @@
+     read the files and then call [produce_document] from module [Web]. *)
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   let files = parse () in
+     Index.init_coqlib_library ();
+     if not !quiet then banner ();
+diff -ru coq-8.4pl3.orig/tools/coqwc.mll coq-8.4pl3/tools/coqwc.mll
+--- coq-8.4pl3.orig/tools/coqwc.mll	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/coqwc.mll	2014-02-17 23:52:39.083870066 +0900
+@@ -278,6 +278,7 @@
+ (*s Main program. *)
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   let files = parse (List.tl (Array.to_list Sys.argv)) in
+   if not (!spec_only || !proof_only) then
+     printf "     spec    proof comments\n";
+diff -ru coq-8.4pl3.orig/tools/fake_ide.ml coq-8.4pl3/tools/fake_ide.ml
+--- coq-8.4pl3.orig/tools/fake_ide.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/fake_ide.ml	2014-02-17 23:53:21.456960475 +0900
+@@ -64,6 +64,7 @@
+   exit 1
+ 
+ let main =
++  Filename.dir_sep.[0] <- '\\';
+   Sys.set_signal Sys.sigpipe
+     (Sys.Signal_handle
+        (fun _ -> prerr_endline "Broken Pipe (coqtop died ?)"; exit 1));
+diff -ru coq-8.4pl3.orig/tools/gallina.ml coq-8.4pl3/tools/gallina.ml
+--- coq-8.4pl3.orig/tools/gallina.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/gallina.ml	2014-02-17 23:53:02.840509754 +0900
+@@ -40,6 +40,7 @@
+     ()
+ 
+ let gallina () =
++  Filename.dir_sep.[0] <- '\\';
+   let lg_command = Array.length Sys.argv in
+   if lg_command < 2 then begin
+     output_string stderr "Usage: gallina [-] [-stdout] file1 file2 ...\n";
+diff -ru coq-8.4pl3.orig/tools/mkwinapp.ml coq-8.4pl3/tools/mkwinapp.ml
+--- coq-8.4pl3.orig/tools/mkwinapp.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/tools/mkwinapp.ml	2014-02-17 23:49:57.807027338 +0900
+@@ -76,6 +76,7 @@
+   exit 1
+ 
+ let main () =
++  Filename.dir_sep.[0] <- '\\';
+   let n = Array.length Sys.argv - 1 in
+   if not (n = 1 || n = 2) then usage ();
+   let flag =
+diff -ru coq-8.4pl3.orig/toplevel/coqtop.ml coq-8.4pl3/toplevel/coqtop.ml
+--- coq-8.4pl3.orig/toplevel/coqtop.ml	2013-12-21 17:03:14.000000000 +0900
++++ coq-8.4pl3/toplevel/coqtop.ml	2014-02-17 23:50:11.803485415 +0900
+@@ -363,6 +363,7 @@
+ let init_toplevel = init
+ 
+ let start () =
++  Filename.dir_sep.[0] <- '\\';
+   init_toplevel (List.tl (Array.to_list Sys.argv));
+   if !ide_slave then
+     Ide_slave.loop ()

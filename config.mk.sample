@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
 ARCH := i686-w64-mingw32
-SUDO := sudo
-PREFIX := /usr/local
+SUDO := 
+PREFIX := $(HOME)/coq-cross
 ARCH_PREFIX := $(PREFIX)/$(ARCH)
+
+BINDIST := $(HOME)/coq-$(ARCH)-bin
