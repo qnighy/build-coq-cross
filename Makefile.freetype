@@ -16,7 +16,11 @@ $(FREETYPE_SRC):
 	  wget -nc http://download.savannah.gnu.org/releases/freetype/freetype-$(FREETYPE_VERSION).tar.bz2
 
 freetype-configure: $(FREETYPE_CONFIGURE_STAMP)
-$(FREETYPE_CONFIGURE_STAMP): $(FREETYPE_SRC) $(ZLIB_INSTALL_STAMP) $(BZIP2_INSTALL_STAMP) $(LIBPNG_INSTALL_STAMP) $(FREEGLUT_INSTALL_STAMP)
+$(FREETYPE_CONFIGURE_STAMP): $(FREETYPE_SRC)
+	$(MAKE) zlib-install
+	$(MAKE) bzip2-install
+	$(MAKE) libpng-install
+	$(MAKE) freeglut-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(FREETYPE_SRC)

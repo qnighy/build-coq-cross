@@ -16,7 +16,8 @@ $(PIXMAN_SRC):
 	  wget -nc http://cairographics.org/releases/pixman-$(PIXMAN_VERSION).tar.gz
 
 pixman-configure: $(PIXMAN_CONFIGURE_STAMP)
-$(PIXMAN_CONFIGURE_STAMP): $(PIXMAN_SRC) $(LIBPNG_INSTALL_STAMP)
+$(PIXMAN_CONFIGURE_STAMP): $(PIXMAN_SRC)
+	$(MAKE) libpng-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(PIXMAN_SRC)

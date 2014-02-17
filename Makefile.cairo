@@ -16,7 +16,9 @@ $(CAIRO_SRC):
 	  wget -nc http://cairographics.org/releases/cairo-$(CAIRO_VERSION).tar.xz
 
 cairo-configure: $(CAIRO_CONFIGURE_STAMP)
-$(CAIRO_CONFIGURE_STAMP): $(CAIRO_SRC) $(PIXMAN_INSTALL_STAMP) $(FREETYPE_INSTALL_STAMP)
+$(CAIRO_CONFIGURE_STAMP): $(CAIRO_SRC)
+	$(MAKE) pixman-install
+	$(MAKE) freetype-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(CAIRO_SRC)

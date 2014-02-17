@@ -16,7 +16,8 @@ $(LIBPNG_SRC):
 	  wget -nc ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng$(shell echo $(LIBPNG_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1\2/')/libpng-$(LIBPNG_VERSION).tar.xz
 
 libpng-configure: $(LIBPNG_CONFIGURE_STAMP)
-$(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC) $(ZLIB_INSTALL_STAMP)
+$(LIBPNG_CONFIGURE_STAMP): $(LIBPNG_SRC)
+	$(MAKE) zlib-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(LIBPNG_SRC)

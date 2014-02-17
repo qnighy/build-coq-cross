@@ -16,7 +16,8 @@ $(GETTEXT_SRC):
 	  wget -nc http://ftp.gnu.org/pub/gnu/gettext/gettext-$(GETTEXT_VERSION).tar.gz
 
 gettext-configure: $(GETTEXT_CONFIGURE_STAMP)
-$(GETTEXT_CONFIGURE_STAMP): $(GETTEXT_SRC) $(LIBICONV_INSTALL_STAMP)
+$(GETTEXT_CONFIGURE_STAMP): $(GETTEXT_SRC)
+	$(MAKE) libiconv-install
 	mkdir -p build
 	cd build && \
 	  tar xvf ../$(GETTEXT_SRC)
