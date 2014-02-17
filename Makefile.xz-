@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+XZ_VERSION := 5.0.5
+
+XZ_SRC := src/xz-$(XZ_VERSION).tar.xz
+XZ_CONFIGURE_STAMP := build/xz-$(XZ_VERSION)/.configure_stamp
+XZ_BUILD_STAMP := build/xz-$(XZ_VERSION)/.build_stamp
+XZ_INSTALL_STAMP := stamps/xz.stamp
+
+.PHONY: xz-src xz-configure xz xz-install xz-force-install
+
+xz-src: $(XZ_SRC)
+$(XZ_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://tukaani.org/xz/xz-$(XZ_VERSION).tar.xz
+
+xz-configure: $(XZ_CONFIGURE_STAMP)
+$(XZ_CONFIGURE_STAMP): $(XZ_SRC)
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(XZ_SRC)
+	cd build/xz-$(XZ_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+xz: $(XZ_BUILD_STAMP)
+$(XZ_BUILD_STAMP): $(XZ_CONFIGURE_STAMP)
+	cd build/xz-$(XZ_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+xz-install: $(XZ_INSTALL_STAMP)
+$(XZ_INSTALL_STAMP):
+	$(MAKE) xz-force-install
+	touch $@
+
+xz-force-install: $(XZ_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/xz-$(XZ_VERSION) && \
+	  $(SUDO) $(MAKE) install

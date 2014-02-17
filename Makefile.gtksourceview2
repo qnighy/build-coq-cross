@@ -1,0 +1,48 @@
+#!/usr/bin/make -f
+
+GTKSOURCEVIEW2_VERSION := 2.11.2
+
+GTKSOURCEVIEW2_SRC := src/gtksourceview-$(GTKSOURCEVIEW2_VERSION).tar.bz2
+GTKSOURCEVIEW2_CONFIGURE_STAMP := build/gtksourceview-$(GTKSOURCEVIEW2_VERSION)/.configure_stamp
+GTKSOURCEVIEW2_BUILD_STAMP := build/gtksourceview-$(GTKSOURCEVIEW2_VERSION)/.build_stamp
+GTKSOURCEVIEW2_INSTALL_STAMP := stamps/gtksourceview2.stamp
+
+.PHONY: gtksourceview2-src gtksourceview2-configure gtksourceview2 gtksourceview2-install gtksourceview2-force-install
+
+gtksourceview2-src: $(GTKSOURCEVIEW2_SRC)
+$(GTKSOURCEVIEW2_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/gtksourceview/$(shell echo $(GTKSOURCEVIEW2_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/gtksourceview-$(GTKSOURCEVIEW2_VERSION).tar.bz2
+
+gtksourceview2-configure: $(GTKSOURCEVIEW2_CONFIGURE_STAMP)
+$(GTKSOURCEVIEW2_CONFIGURE_STAMP): $(GTKSOURCEVIEW2_SRC)
+	$(MAKE) gtk2-install
+	$(MAKE) libxml2-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(GTKSOURCEVIEW2_SRC)
+	# TODO: CFLAGS: ad-hoc for version problem
+	cd build/gtksourceview-$(GTKSOURCEVIEW2_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  CFLAGS="-DG_CONST_RETURN=const -DG_UNICODE_COMBINING_MARK=G_UNICODE_SPACING_MARK" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+gtksourceview2: $(GTKSOURCEVIEW2_BUILD_STAMP)
+$(GTKSOURCEVIEW2_BUILD_STAMP): $(GTKSOURCEVIEW2_CONFIGURE_STAMP)
+	cd build/gtksourceview-$(GTKSOURCEVIEW2_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+gtksourceview2-install: $(GTKSOURCEVIEW2_INSTALL_STAMP)
+$(GTKSOURCEVIEW2_INSTALL_STAMP):
+	$(MAKE) gtksourceview2-force-install
+	touch $@
+
+gtksourceview2-force-install: $(GTKSOURCEVIEW2_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/gtksourceview-$(GTKSOURCEVIEW2_VERSION) && \
+	  $(SUDO) $(MAKE) install

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: gtk2-install
+DEFAULT_TARGET: gtksourceview2-install
 
 include config.mk
 include Makefile.zlib
@@ -21,3 +21,6 @@ include Makefile.pango
 include Makefile.gdk-pixbuf
 include Makefile.atk
 include Makefile.gtk2
+include Makefile.xz-
+include Makefile.libxml2
+include Makefile.gtksourceview2

@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+LIBXML2_VERSION := 2.9.1
+
+LIBXML2_SRC := src/libxml2-$(LIBXML2_VERSION).tar.gz
+LIBXML2_CONFIGURE_STAMP := build/libxml2-$(LIBXML2_VERSION)/.configure_stamp
+LIBXML2_BUILD_STAMP := build/libxml2-$(LIBXML2_VERSION)/.build_stamp
+LIBXML2_INSTALL_STAMP := stamps/libxml2.stamp
+
+.PHONY: libxml2-src libxml2-configure libxml2 libxml2-install libxml2-force-install
+
+libxml2-src: $(LIBXML2_SRC)
+$(LIBXML2_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc ftp://xmlsoft.org/libxml2/libxml2-$(LIBXML2_VERSION).tar.gz
+
+libxml2-configure: $(LIBXML2_CONFIGURE_STAMP)
+$(LIBXML2_CONFIGURE_STAMP): $(LIBXML2_SRC)
+	$(MAKE) zlib-install
+	$(MAKE) libiconv-install
+	$(MAKE) xz-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LIBXML2_SRC)
+	cd build/libxml2-$(LIBXML2_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)" \
+	      --with-iconv \
+	      --without-python
+	touch $@
+
+libxml2: $(LIBXML2_BUILD_STAMP)
+$(LIBXML2_BUILD_STAMP): $(LIBXML2_CONFIGURE_STAMP)
+	cd build/libxml2-$(LIBXML2_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+libxml2-install: $(LIBXML2_INSTALL_STAMP)
+$(LIBXML2_INSTALL_STAMP):
+	$(MAKE) libxml2-force-install
+	touch $@
+
+libxml2-force-install: $(LIBXML2_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/libxml2-$(LIBXML2_VERSION) && \
+	  $(SUDO) $(MAKE) install
