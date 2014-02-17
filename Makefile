@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 .PHONY: DEFAULT_TARGET
-DEFAULT_TARGET: glib-install
+DEFAULT_TARGET: pango-install
 
 include config.mk
 include Makefile.zlib
@@ -17,3 +17,4 @@ include Makefile.libiconv
 include Makefile.gettext
 include Makefile.libffi
 include Makefile.glib
+include Makefile.pango

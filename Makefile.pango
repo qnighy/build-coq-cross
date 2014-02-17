@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+
+PANGO_VERSION := 1.34.1
+
+PANGO_SRC := src/pango-$(PANGO_VERSION).tar.xz
+PANGO_CONFIGURE_STAMP := build/pango-$(PANGO_VERSION)/.configure_stamp
+PANGO_BUILD_STAMP := build/pango-$(PANGO_VERSION)/.build_stamp
+PANGO_INSTALL_STAMP := stamps/pango.stamp
+
+.PHONY: pango-src pango-configure pango pango-install pango-force-install
+
+pango-src: $(PANGO_SRC)
+$(PANGO_SRC):
+	mkdir -p src
+	cd src && \
+	  wget -nc http://ftp.gnome.org/pub/gnome/sources/pango/$(shell echo $(PANGO_VERSION) | sed -e 's/\([0-9]\+\)\.\([0-9]\+\)\.[0-9]\+/\1.\2/')/pango-$(PANGO_VERSION).tar.xz
+
+pango-configure: $(PANGO_CONFIGURE_STAMP)
+$(PANGO_CONFIGURE_STAMP): $(PANGO_SRC)
+	$(MAKE) zlib-install
+	$(MAKE) cairo-install
+	$(MAKE) glib-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(PANGO_SRC)
+	cd build/pango-$(PANGO_VERSION) && \
+	  CPPFLAGS="-I$(PREFIX)/include" \
+	  LDFLAGS="-L$(PREFIX)/lib" \
+	  PKG_CONFIG_LIBDIR="$(PREFIX)/lib/pkgconfig" \
+	    ./configure --host=$(ARCH) --prefix="$(PREFIX)"
+	touch $@
+
+pango: $(PANGO_BUILD_STAMP)
+$(PANGO_BUILD_STAMP): $(PANGO_CONFIGURE_STAMP)
+	cd build/pango-$(PANGO_VERSION) && \
+	  $(MAKE) all
+	touch $@
+
+pango-install: $(PANGO_INSTALL_STAMP)
+$(PANGO_INSTALL_STAMP):
+	$(MAKE) pango-force-install
+	touch $@
+
+pango-force-install: $(PANGO_BUILD_STAMP)
+	mkdir -p stamps
+	cd build/pango-$(PANGO_VERSION) && \
+	  $(SUDO) $(MAKE) install
