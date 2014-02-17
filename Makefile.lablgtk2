@@ -1,0 +1,103 @@
+#!/usr/bin/make -f
+
+LABLGTK2_VERSION := 2.18.0
+
+LABLGTK2_SRC := src/lablgtk-$(LABLGTK2_VERSION).tar.gz
+LABLGTK2_CONFIGURE_STAMP := build/lablgtk-$(LABLGTK2_VERSION)/.configure_stamp
+LABLGTK2_BUILD_STAMP := build/lablgtk-$(LABLGTK2_VERSION)/.build_stamp
+LABLGTK2_INSTALL_STAMP := stamps/lablgtk2.stamp
+
+.PHONY: lablgtk2-src lablgtk2-configure lablgtk2 lablgtk2-install lablgtk2-force-install
+
+lablgtk2-src: $(LABLGTK2_SRC)
+$(LABLGTK2_SRC):
+	mkdir -p src
+	echo "please download src/$(LABLGTK2_SRC) !" >&2
+	false
+
+lablgtk2-configure: $(LABLGTK2_CONFIGURE_STAMP)
+$(LABLGTK2_CONFIGURE_STAMP): $(LABLGTK2_SRC)
+	$(MAKE) gtk2-install
+	$(MAKE) gtksourceview2-install
+	$(MAKE) mingw-ocaml-install
+	mkdir -p build
+	cd build && \
+	  tar xvf ../$(LABLGTK2_SRC)
+	cd build/lablgtk-$(LABLGTK2_VERSION) && \
+	  patch -p1 < ../../patches/lablgtk2-cross.patch
+	cd build/lablgtk-$(LABLGTK2_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	  OCAMLFIND=ocamlfind \
+	  CAMLP4O=camlp4o \
+	  CAMLMKLIB=$(ARCH)-ocamlmklib \
+	  CAMLMKTOP=ocamlmktop \
+	  OCAMLYACC=$(ARCH)-ocamlyacc \
+	  OCAMLLEX=$(ARCH)-ocamllex \
+	  OCAMLDOC=$(ARCH)-ocamldoc \
+	  OCAMLDEP=$(ARCH)-ocamldep \
+	  OCAMLRUN=$(ARCH)-ocamlrun \
+	  OCAMLOPTDOTOPT=$(ARCH)-ocamlopt.opt \
+	  OCAMLCDOTOPT=$(ARCH)-ocamlc.opt \
+	  CAMLOPT=$(ARCH)-ocamlopt \
+	  CAMLC=$(ARCH)-ocamlc \
+	    ./configure --host=$(ARCH) --prefix="$(ARCH_PREFIX)"
+	touch $@
+
+lablgtk2: $(LABLGTK2_BUILD_STAMP)
+$(LABLGTK2_BUILD_STAMP): $(LABLGTK2_CONFIGURE_STAMP)
+	cd build/lablgtk-$(LABLGTK2_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	  OCAMLFIND=ocamlfind \
+	  CAMLP4O=camlp4o \
+	  CAMLMKLIB=$(ARCH)-ocamlmklib \
+	  CAMLMKTOP=ocamlmktop \
+	  OCAMLYACC=$(ARCH)-ocamlyacc \
+	  OCAMLLEX=$(ARCH)-ocamllex \
+	  OCAMLDOC=$(ARCH)-ocamldoc \
+	  OCAMLDEP=$(ARCH)-ocamldep \
+	  OCAMLRUN=$(ARCH)-ocamlrun \
+	  OCAMLOPTDOTOPT=$(ARCH)-ocamlopt.opt \
+	  OCAMLCDOTOPT=$(ARCH)-ocamlc.opt \
+	  CAMLOPT=$(ARCH)-ocamlopt \
+	  CAMLC=$(ARCH)-ocamlc \
+	    $(MAKE) all
+	touch $@
+
+lablgtk2-install: $(LABLGTK2_INSTALL_STAMP)
+$(LABLGTK2_INSTALL_STAMP):
+	$(MAKE) lablgtk2-force-install
+	touch $@
+
+lablgtk2-force-install: $(LABLGTK2_BUILD_STAMP)
+	$(MAKE) gtk2-install
+	$(MAKE) gtksourceview2-install
+	$(MAKE) mingw-ocaml-install
+	mkdir -p stamps
+	cd build/lablgtk-$(LABLGTK2_VERSION) && \
+	  CPPFLAGS="-I$(ARCH_PREFIX)/include" \
+	  LDFLAGS="-L$(ARCH_PREFIX)/lib" \
+	  PATH="$(PREFIX)/bin:$$PATH" \
+	  PKG_CONFIG_LIBDIR="$(ARCH_PREFIX)/lib/pkgconfig" \
+	  OCAMLFIND_CONF="$(PREFIX)/etc/$(ARCH)-ocamlfind.conf" \
+	  OCAMLFIND=ocamlfind \
+	  CAMLP4O=camlp4o \
+	  CAMLMKLIB=$(ARCH)-ocamlmklib \
+	  CAMLMKTOP=ocamlmktop \
+	  OCAMLYACC=$(ARCH)-ocamlyacc \
+	  OCAMLLEX=$(ARCH)-ocamllex \
+	  OCAMLDOC=$(ARCH)-ocamldoc \
+	  OCAMLDEP=$(ARCH)-ocamldep \
+	  OCAMLRUN=$(ARCH)-ocamlrun \
+	  OCAMLOPTDOTOPT=$(ARCH)-ocamlopt.opt \
+	  OCAMLCDOTOPT=$(ARCH)-ocamlc.opt \
+	  CAMLOPT=$(ARCH)-ocamlopt \
+	  CAMLC=$(ARCH)-ocamlc \
+	    $(SUDO) $(MAKE) install

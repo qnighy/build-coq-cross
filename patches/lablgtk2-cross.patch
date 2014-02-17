@@ -1,0 +1,62 @@
+diff -ru lablgtk-2.18.0.orig/src/Makefile lablgtk-2.18.0/src/Makefile
+--- lablgtk-2.18.0.orig/src/Makefile	2013-10-01 17:31:50.000000000 +0900
++++ lablgtk-2.18.0/src/Makefile	2014-02-16 17:46:56.013968312 +0900
+@@ -2,6 +2,8 @@
+ 
+ COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
+ LINKER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS)
++HOST_COMPILER = ocamlc -w s -c
++HOST_LINKER = ocamlc
+ COMPOPT = $(CAMLOPT) $(MLFLAGS) -w s -c
+ LINKOPT = $(CAMLOPT) $(MLFLAGS)
+ LIBRARIAN = $(CAMLMKLIB) -verbose -ocamlc "$(CAMLC)" -ocamlopt "$(CAMLOPT)"
+@@ -18,7 +20,7 @@
+ 
+ include $(CONFIG)
+ 
+-TARGETS = varcc$(XE) lablgtktop$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE) \
++TARGETS = varcc$(XE) $(MLLIBS) $(THOBJS) $(CONFIG) lablgtk.cma \
+ 	$(THINITOBJS) build.ml
+ 
+ all: byte
+@@ -441,7 +443,6 @@
+ 	if test -f lablgladecc$(XE); then \
+ 	  cp lablgladecc$(XE) "$(BINDIR)/lablgladecc2$(XE)"; \
+ 	fi
+-	cp gdk_pixbuf_mlsource$(XE) "$(BINDIR)"
+ 	$(RANLIB) $(CLIBS:%=$(FLINSTALLDIR)/%)
+ 	@if test -f lablgtk.cmxa; then \
+ 	  echo "Execute $(RANLIB) in $(FLINSTALLDIR)"; \
+@@ -451,8 +452,6 @@
+ 
+ findlib-uninstall:
+ 	$(OCAMLFIND) remove lablgtk2
+-	for f in lablgladecc2$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE); \
+-	  do rm -f "$(BINDIR)"/$$f; done
+ 
+ lablgtk.cma liblablgtk2$(XA): $(COBJS) $(MLOBJS)
+ 	$(LIBRARIAN) -o lablgtk -oc lablgtk2 $^ $(GTKLIBS)
+@@ -525,11 +524,11 @@
+ xml_lexer.cmo xml_lexer.cmx : xml_lexer.cmi
+ 
+ varcc$(XE): varcc.cmo
+-	$(LINKER) -o $@ $<
++	$(HOST_LINKER) -o $@ $<
+ 	rm -f *_tags.h *_tags.c
+ 
+ propcc$(XE): propcc.cmo
+-	$(LINKER) -o $@ $<
++	$(HOST_LINKER) -o $@ $<
+ 
+ check_externals$(XE): check_externals.cmo
+ 	$(LINKER) -o $@ $<
+@@ -625,5 +624,9 @@
+ ml_panel$(XO): ml_gtk.h ml_gobject.h wrappers.h
+ 
+ varcc.cmo: varcc.ml4
++	ocamlc -c -pp "$(CAMLP4O) -impl" -impl $<
++
++propcc.cmo: propcc.ml4
++	ocamlc -c -pp "$(CAMLP4O) -impl" -impl $<
+ 
+ include .depend
