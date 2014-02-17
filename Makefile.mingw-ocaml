@@ -9,6 +9,8 @@ MINGW_OCAML_CONFIGURE_STAMP := $(MINGW_OCAML_BUILD_DIR)/.configure_stamp
 MINGW_OCAML_BUILD_STAMP := $(MINGW_OCAML_BUILD_DIR)/.build_stamp
 MINGW_OCAML_INSTALL_STAMP := stamps/mingw-ocaml.stamp
 
+.PHONY: flexdll-src mingw-ocaml-src mingw-ocaml-configure mingw-ocaml mingw-ocaml-install mingw-ocaml-force-install
+
 FLEXDLL_VERSION := 0.31
 FLEXDLL_SRC := src/flexdll-$(FLEXDLL_VERSION).tar.gz
 flexdll-src: $(FLEXDLL_SRC)
